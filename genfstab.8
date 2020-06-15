@@ -1,0 +1,45 @@
+.TH GENFSTAB 8 "2020-06-15" "Cem Keylan" "System Administration" 
+.SH NAME
+genfstab - generate fstab-compatible output
+.SH SYNOPSIS
+genfstab [-f filter] [-t tag] [-LpPU] [root]
+.SH DESCRIPTION
+genfstab is a utility that detects mounted filesystems and swaps, and outputs
+information that can be parsed by fstab(5). This is a POSIX sh implementation
+of the Arch Linux tool with the same name.
+.SH OPTIONS
+.PP
+\fB-f\fR <filter>
+.RS 4
+Restrict output to mountpoints matching the prefix FILTER
+.RE
+.PP
+\fB-L\fR
+.RS 4
+Use labels for source identifiers (shortcut for -t LABEL)
+.RE
+.PP
+\fB-p\fR
+.RS 4
+Exclude pseudofs mounts (default behaviour)
+.RE
+.PP
+\fB-P\fR
+.RS 4
+Include pseudofs mounts
+.RE
+.PP
+\fB-t\fR <tag>
+.RS 4
+Use tag for source identifiers (should be one of: LABEL, UUID, PARTLABEL, PARTUUID)
+.RE
+.PP
+\fB-U\fR
+.RS 4
+Use UUIDs for source identifiers (shortcut for \fI-t UUID\fR)
+.RE
+.SH AUTHOR
+Cem Keylan <cem@ckyln\&.com>
+.SH SEE ALSO
+.sp
+\fBfstab\fR(5)
