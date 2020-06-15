@@ -11,4 +11,43 @@ environments. Other than this, syntax and output is identical. If you are
 using a simple PC, you will not notice any difference.
 
 
+Installation
+--------------------------------------------------------------------------------
+
+To install you can simply run 'make install' or without make,
+
+  +--------------------------------------------------------------------------+
+  | $ mkdir -p /usr/local/bin /usr/local/share/man/man8                      |
+  | $ cp genfstab   /usr/local/bin/genfstab                                  |
+  | $ cp genfstab.8 /usr/local/share/man/man8/genfstab.8                     |
+  |                                                                          |
+  | $ chmod 755 /usr/local/bin/genfstab                                      |
+  | $ chmod 644 /usr/local/share/man/man8/genfstab.8                         |
+  +--------------------------------------------------------------------------+
+
+
+Usage
+--------------------------------------------------------------------------------
+
+The syntax and usage of genfstab is the same as the Arch Linux tool.
+
+  +--------------------------------------------------------------------------+
+  | # Simply add all mounted devices to fstab                                |
+  | $ genfstab >> /etc/fstab                                                 |
+  |                                                                          |
+  | # Only list mounted devices on /home                                     |
+  | $ genfstab -f /home >> /etc/fstab                                        |
+  |                                                                          |
+  | # Use /mnt as root                                                       |
+  | $ genfstab /mnt >> /etc/fstab                                            |
+  |                                                                          |
+  | # Use PARTUUID identifiers                                               |
+  | $ genfstab -t PARTUUID >> /etc/fstab                                     |
+  +--------------------------------------------------------------------------+
+
+See 'genfstab --help' or the genfstab manual page for more detailed information.
+
+
+References
+--------------------------------------------------------------------------------
 [1]: https://github.com/archlinux/arch-install-scripts
