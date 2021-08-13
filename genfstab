@@ -5,8 +5,7 @@
 # Copyright (C) 2020 Cem Keylan <cem@ckyln.com>
 
 out() { printf '%s\n' "$@" ;}
-msg() { out "$@" >&2 ;}
-die() { [ "$1" ] && msg "$@"; exit 1 ;}
+die() { out "$@" >&2; exit 1 ;}
 
 find_tag() {
     # Function to find the tag of the given device. This eliminates the
@@ -107,7 +106,7 @@ usage() {
         "${0##*/} generates output suitable for addition to an fstab file based on the" \
         "devices mounted under the mountpoint specified by the given root." "" \
         "This implementation of genfstab is from <https://git.ckyln.com/genfstab>"
-    exit 0
+    exit "${1:-0}"
 }
 
 
@@ -115,7 +114,7 @@ usage() {
 case " $* " in *' --help '*|*' -h '*) usage; esac
 
 ident='' filter='' pseudo=0
-while getopts PpLUf:t: flag; do
+while getopts hPpLUf:t: flag; do
     case $flag in
         h) usage       ;;
         P) pseudo=1    ;;
@@ -128,7 +127,7 @@ while getopts PpLUf:t: flag; do
                LABEL|UUID|PARTLABEL|PARTUUID) ident=$OPTARG ;;
                *) die "Unknown identifier '$OPTARG'"; esac
         ;;
-        ?) die
+        ?) usage 1
     esac
 done
 shift $(( OPTIND - 1 ))
