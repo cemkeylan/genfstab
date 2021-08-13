@@ -21,7 +21,7 @@ find_tag() {
         die "Directory '$dir' doesn't exist"
 
     for file in "$tagdir/"*; do
-        [ "$(readlink -f "$file")" = "$1" ] || continue
+        [ "$(_readlinkf "$file")" = "$1" ] || continue
         tag="$ident=${file##*/}"
         break
     done
@@ -31,14 +31,41 @@ find_tag() {
     out "${tag:-$1}"
 }
 
-readlink_sh() (
-    # This function changes directory to the given path in order to find the
-    # real location of the given directory. We are doing this in a subshell
-    # so that we return to our previous location. Sadly, we cannot use this
-    # function on 'find_tag()' as this only works for resolving directory paths.
-    cd -P "$1" || return 1
-    printf '%s\n' "$PWD"
-)
+_readlinkf() {
+    # https://github.com/ko1nksm/readlinkf
+    [ "${1:-}" ] || return 1
+    max_symlinks=40
+    CDPATH='' # to avoid changing to an unexpected directory
+
+    target=$1
+    [ -e "${target%/}" ] || target=${1%"${1##*[!/]}"} # trim trailing slashes
+    [ -d "${target:-/}" ] && target="$target/"
+
+    cd -P . 2>/dev/null || return 1
+    while [ "$max_symlinks" -ge 0 ] && max_symlinks=$((max_symlinks - 1)); do
+        if [ ! "$target" = "${target%/*}" ]; then
+            case $target in
+                /*) cd -P "${target%/*}/" 2>/dev/null || break ;;
+                *) cd -P "./${target%/*}" 2>/dev/null || break ;;
+            esac
+            target=${target##*/}
+        fi
+
+        if [ ! -L "$target" ]; then
+            target="${PWD%/}${target:+/}${target}"
+            printf '%s\n' "${target:-/}"
+            return 0
+        fi
+
+        # `ls -dl` format: "%s %u %s %s %u %s %s -> %s\n",
+        #   <file mode>, <number of links>, <owner name>, <group name>,
+        #   <size>, <date and time>, <pathname of link>, <contents of link>
+        # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html
+        link=$(ls -dl -- "$target" 2>/dev/null) || break
+        target=${link#*" $target -> "}
+    done
+    return 1
+}
 
 ispseudo() {
     # This function checks for pseudo-filesystems and returns 0 if it is.
@@ -96,7 +123,7 @@ while getopts PpLUf:t: flag; do
         L) ident=LABEL ;;
         U) ident=UUID  ;;
         f) [ -d "$OPTARG" ] || die "Not a directory '$OPTARG'"
-            filter=$(readlink_sh "$OPTARG") ;;
+            filter=$(_readlinkf "$OPTARG") ;;
         t) case "$OPTARG" in
                LABEL|UUID|PARTLABEL|PARTUUID) ident=$OPTARG ;;
                *) die "Unknown identifier '$OPTARG'"; esac
@@ -108,7 +135,7 @@ shift $(( OPTIND - 1 ))
 
 [ "$1" ] && {
     [ -d "$1" ] || die "Not a directory '$1'"
-    root="$(readlink_sh "$1")"
+    root="$(_readlinkf "$1")"
 }
 
 # It's a good thing that /proc/mounts and fstab share the same syntax. We will
