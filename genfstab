@@ -30,6 +30,11 @@ find_tag() {
     out "${tag:-$1}"
 }
 
+print_mnt() {
+    # Print fstab entry
+    printf '%-23s %-15s %-15s %-15s %s %s\n\n' "$@"
+}
+
 _readlinkf() {
     # https://github.com/ko1nksm/readlinkf
     [ "${1:-}" ] || return 1
@@ -130,7 +135,7 @@ while getopts hPpLUf:t: flag; do
         ?) usage 1
     esac
 done
-shift $(( OPTIND - 1 ))
+shift $((OPTIND - 1))
 
 [ "$1" ] && {
     [ -d "$1" ] || die "Not a directory '$1'"
@@ -155,7 +160,7 @@ while read -r fs dir type options _; do
     fi
     [ "$filter" ] && case "$dir" in ${filter%/}*) ;; *) continue; esac
 
-    printf '%-23s %-15s %-15s %-15s %s %s\n\n' "$fs" "${dir:-/}" "$type" "$options" "${dump:=0}" "$pass"
+    print_mnt "$fs" "${dir:-/}" "$type" "$options" "${dump:=0}" "$pass"
 done < /proc/mounts
 
 # Now print out mounted swaps. I am really not quite sure how swaps work as I
@@ -167,5 +172,5 @@ while read -r file _; do
         case "$file" in "$root/"*) ;; *) continue; esac
         file=/${file#$root}
     }
-    printf '%-23s %-15s %-15s %-15s %s %s\n\n' "$file" none swap sw 0 0
+    print_mnt "$file" none swap sw 0 0
 done < /proc/swaps
