@@ -2,13 +2,14 @@ GENFSTAB
 --------------------------------------------------------------------------------
 
 Simplified POSIX sh implementation of the Arch Linux tool[1] with the same name.
-This implementation (with the exception of a single function) is pure shell,
-the only dependency is 'readlink' which can be found in most base utility
-implementations.
+This implementation is almost pure shell, and it only depends on a few POSIX
+utilities. Keep note that this script makes use of files created by the kernel,
+and I have not tested this script outside of Linux. So, while the script itself
+is POSIX, it may not work outside of Linux.
 
 Pseudo-filesystem identification is better on this implementation for complex
 environments. Other than this, syntax and output is identical. If you are
-using a simple PC, you will not notice any difference.
+using a simple PC, you will probably not notice any difference.
 
 
 Installation
